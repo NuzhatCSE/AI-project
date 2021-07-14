@@ -61,8 +61,71 @@ while True:
     ret, thresh = cv2.threshold(mask1, m_g, 255, cv2.THRESH_BINARY)
     dilata = cv2.dilate(thresh, (3, 3), iterations=6)
 
+    # Step -6
+    # findcontour(img,contour_retrival_mode,method)
+    cnts, hier = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-    # step -6
+    try:
+        # print("try")
+        # Step -7
+        # Find contour with maximum area
+        cm = max(cnts, key=lambda x: cv2.contourArea(x))
+        # print("C==",cnts)
+        epsilon = 0.0005 * cv2.arcLength(cm, True)
+        data = cv2.approxPolyDP(cm, epsilon, True)
+
+        hull = cv2.convexHull(cm)
+
+        cv2.drawContours(crop_image, [cm], -1, (50, 50, 150), 2)
+        cv2.drawContours(crop_image, [hull], -1, (0, 255, 0), 2)
+
+        # Step - 8
+        # Find convexity defects
+        hull = cv2.convexHull(cm, returnPoints=False)
+        defects = cv2.convexityDefects(cm, hull)
+        count_defects = 0
+        # print("Area==",cv2.contourArea(hull) - cv2.contourArea(cm))
+        for i in range(defects.shape[0]):
+            s, e, f, d = defects[i, 0]
+
+            start = tuple(cm[s][0])
+            end = tuple(cm[e][0])
+            far = tuple(cm[f][0])
+            # Cosin Rule
+            a = math.sqrt((end[0] - start[0]) ** 2 + (end[1] - start[1]) ** 2)
+            b = math.sqrt((far[0] - start[0]) ** 2 + (far[1] - start[1]) ** 2)
+            c = math.sqrt((end[0] - far[0]) ** 2 + (end[1] - far[1]) ** 2)
+            angle = (math.acos((b ** 2 + c ** 2 - a ** 2) / (2 * b * c)) * 180) / 3.14
+            # print(angle)
+            # if angle <= 50 draw a circle at the far point
+            if angle <= 50:
+                count_defects += 1
+                cv2.circle(crop_image, far, 5, [255, 255, 255], -1)
+
+        print("count==", count_defects)
+
+        # Step - 9
+        # Print number of fingers
+        if count_defects == 0:
+
+            cv2.putText(frame, " ", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 2)
+        elif count_defects == 1:
+
+            p.press("space")
+            cv2.putText(frame, "Play/Pause", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 2)
+        elif count_defects == 2:
+                p.press("up")
+
+                cv2.putText(frame, "Volume UP", (5, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 2)
+
+
+
+        else:
+            pass
+
+    except:
+        pass
+    # step -10
     cv2.imshow("Thresh", thresh)
     # cv2.imshow("mask==",mask)
     cv2.imshow("filter==", filtr)
@@ -73,4 +136,3 @@ while True:
         break
 cap.release()
 cv2.destroyAllWindows()
-
