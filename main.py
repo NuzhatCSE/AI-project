@@ -117,6 +117,11 @@ while True:
                 p.press("up")
 
                 cv2.putText(frame, "Volume UP", (5, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 2)
+        elif count_defects == 3:
+                p.press("down")
+
+                cv2.putText(frame, "Volume Down", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 2)
+
 
 
 
