@@ -122,6 +122,13 @@ while True:
 
                 cv2.putText(frame, "Volume Down", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 2)
 
+        elif count_defects == 4:
+            p.press("right")
+
+            cv2.putText(frame, "Forward", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 2)
+
+
+
 
 
 
